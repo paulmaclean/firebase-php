@@ -1,8 +1,6 @@
 <?php
 namespace Firebase;
 
-require_once __DIR__ . '/firebaseInterface.php';
-
 use \Exception;
 
 
@@ -12,6 +10,7 @@ use \Exception;
  * @author Tamas Kalman <ktamas77@gmail.com>
  * @url    https://github.com/ktamas77/firebase-php/
  * @link   https://www.firebase.com/docs/rest-api.html
+ *
  */
 
 /**
@@ -19,13 +18,13 @@ use \Exception;
  *
  * @author Tamas Kalman <ktamas77@gmail.com>
  * @link   https://www.firebase.com/docs/rest-api.html
+ *
  */
 class FirebaseLib implements FirebaseInterface
 {
     private $_baseURI;
     private $_timeout;
     private $_token;
-    private $_curlHandler;
 
     /**
      * Constructor
@@ -46,27 +45,6 @@ class FirebaseLib implements FirebaseInterface
         $this->setBaseURI($baseURI);
         $this->setTimeOut(10);
         $this->setToken($token);
-        $this->initCurlHandler();
-    }
-
-    /**
-     * Initializing the CURL handler
-     *
-     * @return void
-     */
-    public function initCurlHandler()
-    {
-        $this->_curlHandler = curl_init();
-    }
-
-    /**
-     * Closing the CURL handler
-     *
-     * @return void
-     */
-    public function closeCurlHandler()
-    {
-        curl_close($this->_curlHandler);
     }
 
     /**
@@ -97,18 +75,17 @@ class FirebaseLib implements FirebaseInterface
     /**
      * Returns with the normalized JSON absolute path
      *
-     * @param  string $path Path
-     * @param  array $options Options
+     * @param  string $path to data
+     * @param  string $params
      * @return string
      */
-    private function _getJsonPath($path, $options = array())
+    private function _getJsonPath($path, $params = null)
     {
         $url = $this->_baseURI;
-        if ($this->_token !== '') {
-            $options['auth'] = $this->_token;
-        }
         $path = ltrim($path, '/');
-        return $url . $path . '.json?' . http_build_query($options);
+        $auth = ($this->_token == '') ? '' : '?auth=' . $this->_token;
+
+        return $url . $path . '.json' . $auth . '&' . $params;
     }
 
     /**
@@ -129,13 +106,12 @@ class FirebaseLib implements FirebaseInterface
      *
      * @param string $path Path
      * @param mixed $data Data
-     * @param array $options Options
      *
      * @return array Response
      */
-    public function set($path, $data, $options = array())
+    public function set($path, $data)
     {
-        return $this->_writeData($path, $data, 'PUT', $options);
+        return $this->_writeData($path, $data, 'PUT');
     }
 
     /**
@@ -144,13 +120,12 @@ class FirebaseLib implements FirebaseInterface
      *
      * @param string $path Path
      * @param mixed $data Data
-     * @param array $options Options
      *
      * @return array Response
      */
-    public function push($path, $data, $options = array())
+    public function push($path, $data)
     {
-        return $this->_writeData($path, $data, 'POST', $options);
+        return $this->_writeData($path, $data, 'POST');
     }
 
     /**
@@ -159,13 +134,12 @@ class FirebaseLib implements FirebaseInterface
      *
      * @param string $path Path
      * @param mixed $data Data
-     * @param array $options Options
      *
      * @return array Response
      */
-    public function update($path, $data, $options = array())
+    public function update($path, $data)
     {
-        return $this->_writeData($path, $data, 'PATCH', $options);
+        return $this->_writeData($path, $data, 'PATCH');
     }
 
     /**
@@ -173,18 +147,20 @@ class FirebaseLib implements FirebaseInterface
      * HTTP 200: Ok
      *
      * @param string $path Path
-     * @param array $options Options
+     * @param string $params
      *
      * @return array Response
      */
-    public function get($path, $options = array())
+    public function get($path, $params = null)
     {
         try {
-            $ch = $this->_getCurlHandler($path, 'GET', $options);
+            $ch = $this->_getCurlHandler($path, 'GET', $params);
             $return = curl_exec($ch);
+            curl_close($ch);
         } catch (Exception $e) {
             $return = null;
         }
+
         return $return;
     }
 
@@ -193,15 +169,15 @@ class FirebaseLib implements FirebaseInterface
      * HTTP 204: Ok
      *
      * @param string $path Path
-     * @param array $options Options
      *
      * @return array Response
      */
-    public function delete($path, $options = array())
+    public function delete($path)
     {
         try {
-            $ch = $this->_getCurlHandler($path, 'DELETE', $options);
+            $ch = $this->_getCurlHandler($path, 'DELETE');
             $return = curl_exec($ch);
+            curl_close($ch);
         } catch (Exception $e) {
             $return = null;
         }
@@ -211,27 +187,26 @@ class FirebaseLib implements FirebaseInterface
     /**
      * Returns with Initialized CURL Handler
      *
-     * @param string $path Path
+     * @param string $path
      * @param string $mode Mode
-     * @param array $options Options
+     * @param string $params
      *
      * @return resource Curl Handler
      */
-    private function _getCurlHandler($path, $mode, $options = array())
+    private function _getCurlHandler($path, $mode, $params = null)
     {
-        $url = $this->_getJsonPath($path, $options);
-        $ch = $this->_curlHandler;
+        $url = $this->_getJsonPath($path, $params);
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->_timeout);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->_timeout);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $mode);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         return $ch;
     }
 
-    private function _writeData($path, $data, $method = 'PUT', $options = array())
+    private function _writeData($path, $data, $method = 'PUT')
     {
         $jsonData = json_encode($data);
         $header = array(
@@ -239,12 +214,14 @@ class FirebaseLib implements FirebaseInterface
             'Content-Length: ' . strlen($jsonData)
         );
         try {
-            $ch = $this->_getCurlHandler($path, $method, $options);
+            $ch = $this->_getCurlHandler($path, $method);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
             $return = curl_exec($ch);
+            curl_close($ch);
         } catch (Exception $e) {
-            $return = null;
+            var_dump($e);
+            $return = $e;
         }
         return $return;
     }

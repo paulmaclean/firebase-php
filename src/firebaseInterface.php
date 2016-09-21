@@ -3,7 +3,6 @@ namespace Firebase;
 
 /**
  * Interface FirebaseInterface
- *
  * @package Firebase
  */
 interface FirebaseInterface
@@ -29,38 +28,33 @@ interface FirebaseInterface
     /**
      * @param $path
      * @param $data
-     * @param $options
      * @return mixed
      */
-    public function set($path, $data, $options = array());
+    public function set($path, $data);
 
     /**
      * @param $path
      * @param $data
-     * @param $options
      * @return mixed
      */
-    public function push($path, $data, $options = array());
+    public function push($path, $data);
 
     /**
      * @param $path
      * @param $data
-     * @param $options
      * @return mixed
      */
-    public function update($path, $data, $options = array());
+    public function update($path, $data);
 
     /**
      * @param $path
-     * @param $options
      * @return mixed
      */
-    public function get($path, $options = array());
+    public function get($path);
 
     /**
      * @param $path
-     * @param $options
      * @return mixed
      */
-    public function delete($path, $options = array());
+    public function delete($path);
 }

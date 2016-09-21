@@ -1,20 +1,17 @@
 # Firebase PHP Client
 
-[![Build Status](https://drone.io/github.com/ktamas77/firebase-php/status.png)](https://drone.io/github.com/ktamas77/firebase-php/latest)
+This is a fork of https://github.com/ktamas77/firebase-php
 
-[![Build Status](https://semaphoreci.com/api/v1/ktamas77/firebase-php/branches/master/badge.svg)](https://semaphoreci.com/ktamas77/firebase-php)
+This fork allows sending extra parameters to the firebase rest methods. 
 
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ktamas77/firebase-php/badges/quality-score.png?s=239ffca76628b5a86540b9def187e2f8a199cb10)](https://scrutinizer-ci.com/g/ktamas77/firebase-php/)
-
-Based on the [Firebase REST API](https://www.firebase.com/docs/rest-api.html).
-
-Available on [Packagist](https://packagist.org/packages/ktamas77/firebase-php).
+Example:
+     $nodes = $this->client->get($this->endpoint, $params);
 
 ### Adding Firebase PHP to your project using Composer
 
 ```bash
 cd <your_project>
-composer require ktamas77/firebase-php dev-master
+composer require paulmaclean/firebase-php dev-master
 ```
 
 More info about Composer at [getcomposer.org](http://getcomposer.org).

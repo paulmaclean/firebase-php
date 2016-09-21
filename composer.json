@@ -1,17 +1,17 @@
 {
-  "name": "ktamas77/firebase-php",
-  "description": "Firebase PHP Client",
-  "homepage": "https://github.com/ktamas77/firebase-php",
+  "name": "paulmaclean/firebase-php",
+  "description": "Firebase PHP Client - Fork of https://github.com/ktmas77/firebase-php",
+  "homepage": "https://github.com/paulmaclean/firebase-php",
   "keywords": [
     "firebase",
     "REST",
     "wrapper"
   ],
-  "version": "2.2.0",
+  "version": "1.0.0",
   "authors": [
     {
-      "name": "Tamas Kalman",
-      "email": "ktamas77@gmail.com"
+      "name": "Paul MacLean",
+      "email": "paul.james.maclean@gmail.com"
     }
   ],
   "license": "MIT",

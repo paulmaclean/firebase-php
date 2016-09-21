@@ -2,3 +2,5 @@
 /nbproject/private/
 vendor
 composer.lock
+.DS_Store
+*/.DS_Store
